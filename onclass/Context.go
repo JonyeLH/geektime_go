@@ -1,4 +1,4 @@
-package onclass
+package main
 
 import (
 	"encoding/json"
@@ -46,6 +46,7 @@ func (c *Context) WriteJson(status int, data interface{}) error {
 	}
 	return err
 }
+
 func NewContext(w http.ResponseWriter, r *http.Request) *Context {
 	return &Context{
 		W: w,

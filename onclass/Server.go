@@ -1,4 +1,4 @@
-package onclass
+package main
 
 import "net/http"
 
@@ -83,13 +83,15 @@ import "net/http"
 //}
 
 type Server interface {
-	Route(method string, pattern string, handleFunc func(ctx *Context)) //添加method
+	//Route(method string, pattern string, handleFunc func(ctx *Context)) //添加method		//直接使用Routable来实现路由
+	Routable
 	Start(address string) error
 }
 
 type sdkHttpServer struct {
-	Name    string
-	handler *HandlerBasedMap //添加HandlerBasedMap
+	Name string
+	//handler *HandlerBasedMap //添加HandlerBasedMap		//强依赖handler、HandlerBasedMap
+	handler Handler
 }
 
 func NewHttpServer(name string) Server {
@@ -98,9 +100,12 @@ func NewHttpServer(name string) Server {
 	}
 }
 
-//func (s *sdkHttpServer) Route(pattern string,
+//func (s *sdkHttpServer) Route(
+//	pattern string,
 //	handleFunc func(ctx *Context)) {
-//	http.HandleFunc(pattern, func(write http.ResponseWriter, request *http.Request){
+//	http.HandleFunc(pattern, func(
+//		write http.ResponseWriter,
+//		request *http.Request){
 //		ctx := NewContext(write, request)
 //		handleFunc(ctx)
 //	})
@@ -114,8 +119,9 @@ func (s *sdkHttpServer) Route(
 	method string,
 	pattern string,
 	handleFunc func(ctx *Context)) {
-	key := s.handler.Key(method, pattern)
-	s.handler.handlers[key] = handleFunc
+	//key := s.handler.Key(method, pattern)	//强依赖handler、HandlerBasedMap
+	//s.handler.handlers[key] = handleFunc	//强依赖handler、HandlerBasedMap
+	s.Route(method, pattern, handleFunc)
 }
 func (s *sdkHttpServer) Start(address string) error {
 	http.Handle("/", s.handler)
