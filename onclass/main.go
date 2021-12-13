@@ -22,30 +22,12 @@ func order(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", home)
-	http.HandleFunc("/user", user)
-	http.HandleFunc("/user/create", createUser)
-	http.HandleFunc("/order", order)
-	http.ListenAndServe(":8080", nil)
-}
-
-type Server interface {
-	Route(pattern string, handlerFunc http.HandlerFunc)
-	Start(address string) error
-}
-
-type sdkHttpServer struct {
-	Name string
-}
-
-func (s *sdkHttpServer) Route(pattern string, handlerFunc http.HandlerFunc) {
-	http.HandleFunc(pattern, handlerFunc)
-}
-
-func (s *sdkHttpServer) Start(address string) error {
-	return http.ListenAndServe(address, nil)
-}
-
-func NewHttpServer() Server {
-	return &sdkHttpServer{}
+	server := NewHttpServer("Server_test")
+	//server.Route("/", home)
+	//server.Route("/user", user)
+	//server.Route("/user/create", createUser)
+	//server.Route("/order", order)
+	//server.Route("/user/signUp", SignUp)
+	server.Route("POST", "/user/signUp", SignUp)
+	server.Start(":8080")
 }
