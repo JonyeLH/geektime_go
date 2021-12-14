@@ -92,9 +92,19 @@ type sdkHttpServer struct {
 	Name string
 	//handler *HandlerBasedMap //添加HandlerBasedMap		//强依赖handler、HandlerBasedMap
 	handler Handler
+	root    Filter
 }
 
-func NewHttpServer(name string) Server {
+func NewHttpServer(name string, builders ...FilterBuilder) Server {
+	handler := NewHandlerBasedMap()
+	var root Filter = func(c *Context) {
+		handler.ServeHTTP(c.W, c.R)
+	}
+	for i := len(builders) - 1; i >= 0; i-- {
+		b := builders[i]
+		root = b(root)
+	}
+
 	return &sdkHttpServer{ //当返回实际类型所实现的接口的时候，需要返回指针
 		Name: name,
 	}
@@ -124,7 +134,11 @@ func (s *sdkHttpServer) Route(
 	s.Route(method, pattern, handleFunc)
 }
 func (s *sdkHttpServer) Start(address string) error {
-	http.Handle("/", s.handler)
+	//http.Handle("/", s.handler)
+	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		c := NewContext(writer, request)
+		s.root(c)
+	})
 	return http.ListenAndServe(address, nil)
 }
 
