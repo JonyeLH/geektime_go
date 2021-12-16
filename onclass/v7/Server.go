@@ -13,11 +13,23 @@ type sdkHttpServer struct {
 	root    Filter
 }
 
+func (s *sdkHttpServer) Route(
+	method string,
+	pattern string,
+	handleFunc func(ctx *Context)) {
+	s.Route(method, pattern, handleFunc)
+}
+func (s *sdkHttpServer) Start(address string) error {
+	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		c := NewContext(writer, request)
+		s.root(c)
+	})
+	return http.ListenAndServe(address, nil)
+}
+
 func NewHttpServer(name string, builders ...FilterBuilder) Server {
 	handler := NewHandlerBasedMap()
-	var root Filter = func(ctx *Context) {
-		handler.ServeHTTP(ctx.W, ctx.R)
-	}
+	var root Filter = handler.ServerHTTP
 	for i := len(builders) - 1; i >= 0; i-- {
 		b := builders[i]
 		root = b(root)
@@ -28,20 +40,6 @@ func NewHttpServer(name string, builders ...FilterBuilder) Server {
 		handler: handler,
 		root:    root,
 	}
-}
-
-func (s *sdkHttpServer) Route(
-	method string,
-	pattern string,
-	handleFunc func(ctx *Context)) {
-	s.handler.Route(method, pattern, handleFunc)
-}
-func (s *sdkHttpServer) Start(address string) error {
-	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		c := NewContext(writer, request)
-		s.root(c)
-	})
-	return http.ListenAndServe(address, nil)
 }
 
 func SignUp(ctx *Context) {
