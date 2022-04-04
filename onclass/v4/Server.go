@@ -13,10 +13,7 @@ type sdkHttpServer struct {
 	handler *HandlerBasedMap //添加HandlerBasedMap		//强依赖handler、HandlerBasedMap
 }
 
-func (s *sdkHttpServer) Route(
-	method string,
-	pattern string,
-	handleFunc func(ctx *Context)) {
+func (s *sdkHttpServer) Route(method string, pattern string, handleFunc func(ctx *Context)) {
 	key := s.handler.Key(method, pattern) //强依赖handler、HandlerBasedMap
 	s.handler.handlers[key] = handleFunc  //强依赖handler、HandlerBasedMap
 }

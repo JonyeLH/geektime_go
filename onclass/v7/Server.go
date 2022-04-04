@@ -34,7 +34,6 @@ func NewHttpServer(name string, builders ...FilterBuilder) Server {
 		b := builders[i]
 		root = b(root)
 	}
-
 	return &sdkHttpServer{ //当返回实际类型所实现的接口的时候，需要返回指针
 		Name:    name,
 		handler: handler,

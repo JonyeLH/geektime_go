@@ -8,12 +8,12 @@ type Server interface {
 }
 
 type sdkHttpServer struct {
-	Name    string
+	Name string
 	handler Handler
-	root    Filter
+	root Filter
 }
 
-func (s *sdkHttpServer) Route(method string, pattern string, handleFunc func(ctx *Context)) {
+func (s *sdkHttpServer) Route(method string, pattern string, handleFunc handlerFunc){
 	s.handler.Route(method, pattern, handleFunc)
 }
 func (s *sdkHttpServer) Start(address string) error {
@@ -24,16 +24,13 @@ func (s *sdkHttpServer) Start(address string) error {
 	return http.ListenAndServe(address, nil)
 }
 
-func NewHttpServer(name string, builders ...FilterBuilder) Server {
+func NewHttpServer(name string, builders... FilterBuilder) Server {
 	handler := NewHandlerBasedMap()
-	var root Filter = func(ctx *Context) {
-		handler.ServeHTTP(ctx.W, ctx.R)
-	}
-	for i := len(builders) - 1; i >= 0; i-- {
+	var root Filter = handler.ServerHTTP
+	for i := len(builders)-1; i >=0 ; i-- {
 		b := builders[i]
 		root = b(root)
 	}
-
 	return &sdkHttpServer{ //当返回实际类型所实现的接口的时候，需要返回指针
 		Name:    name,
 		handler: handler,
@@ -50,8 +47,9 @@ func SignUp(ctx *Context) {
 			return
 		}
 	}
-
 	rep := commonResponse{
+		BizCode: 1,
+		Msg: "success",
 		Data: 123,
 	}
 	err = ctx.OkJson(rep)

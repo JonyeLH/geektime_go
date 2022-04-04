@@ -12,11 +12,8 @@ type sdkHttpServer struct {
 	handler Handler
 }
 
-func (s *sdkHttpServer) Route(
-	method string,
-	pattern string,
-	handleFunc func(ctx *Context)) {
-	s.Route(method, pattern, handleFunc)
+func (s *sdkHttpServer) Route(method string, pattern string, handleFunc func(ctx *Context)) {
+	s.handler.Route(method, pattern, handleFunc)
 }
 
 func (s *sdkHttpServer) Start(address string) error {

@@ -6,16 +6,12 @@ type HandlerBasedMap struct {
 	handlers map[string]func(ctx *Context)
 }
 
-func (s *HandlerBasedMap) Route(
-	method string,
-	pattern string,
-	handleFunc func(ctx *Context)) {
+func (s *HandlerBasedMap) Route(method string, pattern string, handleFunc func(ctx *Context)) {
 	key := s.Key(method, pattern)
 	s.handlers[key] = handleFunc
 }
 
-func (h *HandlerBasedMap) ServeHTTP(writer http.ResponseWriter,
-	request *http.Request) {
+func (h *HandlerBasedMap) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	key := h.Key(request.Method, request.URL.Path)
 	if handler, ok := h.handlers[key]; ok {
 		handler(NewContext(writer, request))

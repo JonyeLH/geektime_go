@@ -8,14 +8,18 @@ type Server interface {
 }
 
 type sdkHttpServer struct {
-	Name    string
+	Name string
 	handler Handler
-	root    Filter
+	root Filter
 }
 
-func (s *sdkHttpServer) Route(method string, pattern string, handleFunc func(ctx *Context)) {
+func (s *sdkHttpServer) Route(
+	method string,
+	pattern string,
+	handleFunc func(ctx *Context)) {
 	s.handler.Route(method, pattern, handleFunc)
 }
+
 func (s *sdkHttpServer) Start(address string) error {
 	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		c := NewContext(writer, request)
@@ -24,20 +28,17 @@ func (s *sdkHttpServer) Start(address string) error {
 	return http.ListenAndServe(address, nil)
 }
 
-func NewHttpServer(name string, builders ...FilterBuilder) Server {
+func NewHttpServer(name string, builders... FilterBuilder) Server {
 	handler := NewHandlerBasedMap()
-	var root Filter = func(ctx *Context) {
-		handler.ServeHTTP(ctx.W, ctx.R)
-	}
-	for i := len(builders) - 1; i >= 0; i-- {
+	var root Filter = handler.ServerHTTP
+	for i := len(builders)-1; i >=0 ; i-- {
 		b := builders[i]
 		root = b(root)
 	}
-
 	return &sdkHttpServer{ //当返回实际类型所实现的接口的时候，需要返回指针
-		Name:    name,
+		Name: name,
 		handler: handler,
-		root:    root,
+		root: root,
 	}
 }
 
@@ -50,7 +51,6 @@ func SignUp(ctx *Context) {
 			return
 		}
 	}
-
 	rep := commonResponse{
 		Data: 123,
 	}
