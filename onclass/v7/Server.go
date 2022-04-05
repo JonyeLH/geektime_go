@@ -2,6 +2,7 @@ package main
 
 import "net/http"
 
+//改造ServeHTTP的入参，解决ctx来回拆解的问题
 type Server interface {
 	Routable
 	Start(address string) error
@@ -13,10 +14,7 @@ type sdkHttpServer struct {
 	root    Filter
 }
 
-func (s *sdkHttpServer) Route(
-	method string,
-	pattern string,
-	handleFunc func(ctx *Context)) {
+func (s *sdkHttpServer) Route(method string, pattern string, handleFunc func(ctx *Context)) {
 	s.Route(method, pattern, handleFunc)
 }
 func (s *sdkHttpServer) Start(address string) error {

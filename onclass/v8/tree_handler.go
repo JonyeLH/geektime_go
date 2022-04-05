@@ -5,14 +5,14 @@ import (
 	"strings"
 )
 
-type HandlerBasedTree struct{
+type HandlerBasedTree struct {
 	root *Node
 }
 
 type Node struct {
-	path string
+	path     string
 	children []*Node
-	handler handlerFunc
+	handler  handlerFunc
 }
 
 func (h *HandlerBasedTree) ServerHTTP(c *Context) {
@@ -48,43 +48,44 @@ func (h *HandlerBasedTree) findRouter(path string) (handlerFunc, bool) {
 }
 
 func (h *HandlerBasedTree) Route(method string, pattern string, handleFun handlerFunc) {
-	patt := strings.Trim(pattern,"/")	//处理路径的前后斜杆， /user/friends  /user/friends/  user/friends/
-	paths := strings.Split(patt, "/")
+	patt := strings.Trim(pattern, "/") //处理路径的前后斜杆， 例如将：/user/friends  /user/friends/  user/friends/  转换成：user/friends
+	paths := strings.Split(patt, "/")  //然后将user/friends切分为[user, friends]
 
 	cur := h.root
-	for index, path := range paths{
+	for index, path := range paths {
 		mathchild, ok := h.findMathChild(cur, path)
-		if ok{
+		if ok {
 			cur = mathchild
-		} else {
+		} else { //若为匹配到，创建路由树
 			h.createSubTree(cur, paths[index:], handleFun)
 		}
 	}
 }
 
-func (h *HandlerBasedTree) findMathChild(root *Node, path string) (*Node, bool){
-	for _, child := range root.children{
-		if child.path == path{
+func (h *HandlerBasedTree) findMathChild(root *Node, path string) (*Node, bool) {
+	for _, child := range root.children {
+		if child.path == path {
 			return child, true
 		}
 	}
 	return nil, false
 }
 
-//
+//创建路由树
 func (h *HandlerBasedTree) createSubTree(root *Node, paths []string, handlerFun handlerFunc) {
 	cur := root
-	for _, path := range paths{
-		nn := newNode(path)
+	for _, path := range paths {
+		nn := newNode(path) //创建新节点
 		cur.children = append(cur.children, nn)
 		cur = nn
 	}
 	cur.handler = handlerFun
 }
 
+//创建新节点
 func newNode(path string) *Node {
 	return &Node{
-		path: path,
+		path:     path,
 		children: make([]*Node, 0, 4),
 	}
 }

@@ -36,6 +36,6 @@ func (h *HandlerBasedMap) Key(method string, pattern string) string {
 var _ Handler = &HandlerBasedMap{} //用于判断结构体HandlerBasedMap是否真的实现了Handler接口，起到判断接口是否发生变化
 func NewHandlerBasedMap() Handler {
 	return &HandlerBasedMap{
-		handlers: make(map[string]func(ctx *Context), 128), //这里可以预估好创建的路由数目
+		handlers: make(map[string]func(ctx *Context), 128), //这里可以预估好注册的路由数目
 	}
 }

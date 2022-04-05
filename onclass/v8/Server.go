@@ -2,18 +2,19 @@ package main
 
 import "net/http"
 
+//在tree_handler中采用路由树的形式完成路由的路径匹配
 type Server interface {
 	Routable
 	Start(address string) error
 }
 
 type sdkHttpServer struct {
-	Name string
+	Name    string
 	handler Handler
-	root Filter
+	root    Filter
 }
 
-func (s *sdkHttpServer) Route(method string, pattern string, handleFunc handlerFunc){
+func (s *sdkHttpServer) Route(method string, pattern string, handleFunc handlerFunc) {
 	s.handler.Route(method, pattern, handleFunc)
 }
 func (s *sdkHttpServer) Start(address string) error {
@@ -24,10 +25,10 @@ func (s *sdkHttpServer) Start(address string) error {
 	return http.ListenAndServe(address, nil)
 }
 
-func NewHttpServer(name string, builders... FilterBuilder) Server {
+func NewHttpServer(name string, builders ...FilterBuilder) Server {
 	handler := NewHandlerBasedMap()
 	var root Filter = handler.ServerHTTP
-	for i := len(builders)-1; i >=0 ; i-- {
+	for i := len(builders) - 1; i >= 0; i-- {
 		b := builders[i]
 		root = b(root)
 	}
@@ -49,8 +50,8 @@ func SignUp(ctx *Context) {
 	}
 	rep := commonResponse{
 		BizCode: 1,
-		Msg: "success",
-		Data: 123,
+		Msg:     "success",
+		Data:    123,
 	}
 	err = ctx.OkJson(rep)
 	if err != nil {

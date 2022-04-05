@@ -3,9 +3,7 @@ package main
 import "net/http"
 
 type Routable interface {
-	Route(method string,
-		pattern string,
-		handleFunc func(ctx *Context))
+	Route(method string, pattern string, handleFunc func(ctx *Context))
 }
 type Handler interface {
 	ServerHTTP(c *Context)
@@ -16,10 +14,7 @@ type HandlerBasedMap struct {
 	handlers map[string]func(ctx *Context)
 }
 
-func (s *HandlerBasedMap) Route(
-	method string,
-	pattern string,
-	handleFunc func(ctx *Context)) {
+func (s *HandlerBasedMap) Route(method string, pattern string, handleFunc func(ctx *Context)) {
 	key := s.Key(method, pattern)
 	s.handlers[key] = handleFunc
 }
